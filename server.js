@@ -1,8 +1,11 @@
 // Entry point to the back-end
-const express = require('express');
 
-// Init express in app variable
+const express = require('express');
+connectDB = require('./config/db');
 const app = express();
+
+// Connect Database
+connectDB();
 
 // GET home route
 app.get('/', (req, res) => res.json('Welcome to the ContactManager API'));
