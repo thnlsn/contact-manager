@@ -7,6 +7,9 @@ const app = express();
 // Connect Database
 connectDB();
 
+// Init Middleware
+app.use(express.json({ extended: false }));
+
 // GET home route
 app.get('/', (req, res) => res.json('Welcome to the ContactManager API'));
 
