@@ -11,7 +11,7 @@ module.exports = function(req, res, next) {
 
   // Check if there is NOT a token
   if (!token) {
-    return res.status(401).json({ msg: 'Not token, authorization denied' }); // This only pertains to protected routes
+    return res.status(401).json({ msg: 'No token, authorization denied' }); // This only pertains to protected routes
   }
 
   // If there IS a token
