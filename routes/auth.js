@@ -1,3 +1,5 @@
+// THIS IS FOR LOGIN (authenticate whether the credentials inputted match a registered user in the database)
+
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -31,21 +33,42 @@ router.post(
     const { email, password } = req.body; // destructure res.body
 
     try {
-      let user = await User.findOne({ email }); // findOne returns a promise, so await for the email and set it to var user
+      let user = await User.findOne({ email }); // find the user that has the email inputted
 
-      if (!user) { // if there is NOT a user (email in database) respond with msg, otherwise move on...
+      if (!user) {
+        // if there is NOT a user (email in database) respond with msg, otherwise move on...
         return res.status(400).json({ msg: 'Invalid Credentials' });
       }
 
       const isMatch = await bcrypt.compare(password, user.password); // checking if the password they inputted matches the one in database
-      
-      if (!isMatch) { // if it DOES NOT match, respond with msg
-        return res.status(400).json({ 'Invalid Credentials' })
-      }
-      
-      
 
-    } catch (err) {}
+      if (!isMatch) {
+        // if it DOES NOT match, respond with msg
+        return res.status(400).json({ msg: 'Invalid Credentials' });
+      }
+
+      // payload is the object to send to user when logged in
+      const payload = {
+        user: {
+          id: user.id
+        }
+      };
+
+      jwt.sign(
+        payload,
+        config.get('jwtSecret'),
+        {
+          expiresIn: 360000
+        },
+        (err, token) => {
+          if (err) throw err;
+          res.json({ token });
+        }
+      );
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server Error');
+    }
   }
 );
 

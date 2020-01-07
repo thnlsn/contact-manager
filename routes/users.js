@@ -1,3 +1,5 @@
+// THIS IS FOR SIGNUP (register a user to database)
+
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -31,7 +33,7 @@ router.post(
     const { name, email, password } = req.body; // destructuring
 
     try {
-      let user = await User.findOne({ email }); // set var user to their inputted email (usually in format ({ email: email }))
+      let user = await User.findOne({ email }); // find the user with the email that was just registered (usually in format ({ email: email }))
 
       if (user) {
         return res.status(400).json({ msg: 'User already exists' }); // if that email (user) exists, send text and 400 code
