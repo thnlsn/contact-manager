@@ -1,7 +1,7 @@
 // Middleware is just a function that has access to the req & res cycle and req & res object whenever we hit any endpoint
 // So whenever an endpoint is hit, we can fire off the middleware
 
-// This middleware specifically, is for protected routes.
+// This middleware specifically, is for protected routes
 
 const jwt = require('jsonwebtoken');
 const config = require('config');
