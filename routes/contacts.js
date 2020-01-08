@@ -36,7 +36,7 @@ router.post(
         .isEmpty()
     ]
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req); // errors for if any of the above fields did not match their validations
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() }); // if there are errors, send them and a 400 code
@@ -57,7 +57,7 @@ router.post(
       res.json(contact);
     } catch (err) {
       console.error(er.message);
-      res.status(500).send('Server Error')
+      res.status(500).send('Server Error');
     }
   }
 );
