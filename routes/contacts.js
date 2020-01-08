@@ -14,14 +14,13 @@ const Contact = require('../models/Contact');
 router.get('/', auth, async (req, res) => {
   try {
     const contacts = await Contact.find({ user: req.user.id }).sort({
-      date: -1
-    });
-    res.json(contacts);
+      date: -1 // -1 orders the contacts from most recent first
+    }); // (req.user.id) is coming from the jwt user object in auth.js (middleware), so it's finding the user with that mongo id
+    res.json(contacts); // turns the array into json
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
-  res.send('Get all users contacts');
 });
 
 // @route       POST api/contacts
