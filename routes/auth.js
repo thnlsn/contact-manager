@@ -54,7 +54,7 @@ router.post(
       if (!isMatch) {
         // if it DOES NOT match, respond with msg
         return res.status(400).json({ msg: 'Invalid Credentials' });
-      }
+      } // if it DOES then continue...
 
       // payload is the object to send to user when logged in
       const payload = {
