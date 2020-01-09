@@ -75,26 +75,32 @@ router.put('/:id', auth, async (req, res) => {
   if (email) contactFields.email = email; // if email exists in req.body, add it to contactFields
   if (phone) contactFields.phone = phone; // if phone exists in req.body, add it to contactFields
   if (type) contactFields.type = type; // if type exists in req.body, add it to contactFields
-});
 
-try {
-  let contact = await Contact.findById(req.params.id); // create contact based on the id in the endpoint
+  try {
+    let contact = await Contact.findById(req.params.id); // create contact based on the id in the endpoint
 
-  if (!contact) return res.status(404).json({ msg: 'Contact not found' }); // if their search doesn't exist
+    if (!contact) return res.status(404).json({ msg: 'Contact not found' }); // if their search doesn't exist
 
-  // make sure users OWNS contact (so someone can't just change them with Postman etc.)
-  // this is done by making sure that the id in the user field of the contact (the relational field) is the same as the currently logged in user (which is found in the token)
-  // contact.user is not a string by default, but req.user.id is, thats why we use .toString()
-  if (contact.user.toString() !== req.user.id) {
-    return res.status(401).json({ msg: 'Not authorized' });
+    // make sure users OWNS the contact being updated (so someone can't just change them with Postman etc.)
+    // this is done by making sure that the id in the user (owner) field of the contact (the relational field) is the same as the currently logged in user (which is found in the token)
+    // contact.user is not a string by default, but req.user.id is, thats why we use .toString()
+    console.log(contact.user);
+    if (contact.user.toString() !== req.user.id) {
+      return res.status(401).json({ msg: 'Not authorized' });
+    }
+
+    contact = await Contact.findByIdAndUpdate(
+      req.params.id, // this is the id we find by (_id)
+      { $set: contactFields }, // setting the fields of the contact to the updated fields
+      { new: true } // if this contact doesn't exist, then just create it
+    );
+
+    res.json(contact);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
   }
-
-  contact = await Contact.findByIdAndUpdate(
-    req.params.id, // this is the id we find by (_id)
-    { $set: contactFields }, // setting the fields of the contact to the updated fields
-    { new: true } // if this contact doesn't exist, then just create it
-  );
-} catch (err) {}
+});
 
 // @route       DELETE api/contacts
 // @desc        Delete contact
