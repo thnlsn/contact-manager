@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
+const auth = require('../middleware/auth'); // basically just gives access to the user in the token
 const { check, validationResult } = require('express-validator/check');
 
 const User = require('../models/User');
@@ -51,11 +51,11 @@ router.post(
         phone,
         type,
         user: req.user.id
-      });
+      }); // creating a new contact in the database with the inputted info as well as the id from the token (for relation to a registered user)
 
-      const contact = await newContact.save();
+      const contact = await newContact.save(); // saving to database
 
-      res.json(contact);
+      res.json(contact); // return info to user
     } catch (err) {
       console.error(er.message);
       res.status(500).send('Server Error');
@@ -64,11 +64,37 @@ router.post(
 );
 
 // @route       GET api/contacts/:id
-// @desc        Get all users contacts
+// @desc        Update contact
 // @access      Private
-router.put('/:id', auth, (req, res) => {
-  res.send('Update contact');
+router.put('/:id', auth, async (req, res) => {
+  const { name, email, phone, type } = req.body;
+
+  // build contact object (these are the fields we would be editing)
+  const contactFields = {};
+  if (name) contactFields.name = name; // if name exists in req.body, add it to contactFields
+  if (email) contactFields.email = email; // if email exists in req.body, add it to contactFields
+  if (phone) contactFields.phone = phone; // if phone exists in req.body, add it to contactFields
+  if (type) contactFields.type = type; // if type exists in req.body, add it to contactFields
 });
+
+try {
+  let contact = await Contact.findById(req.params.id); // create contact based on the id in the endpoint
+
+  if (!contact) return res.status(404).json({ msg: 'Contact not found' }); // if their search doesn't exist
+
+  // make sure users OWNS contact (so someone can't just change them with Postman etc.)
+  // this is done by making sure that the id in the user field of the contact (the relational field) is the same as the currently logged in user (which is found in the token)
+  // contact.user is not a string by default, but req.user.id is, thats why we use .toString()
+  if (contact.user.toString() !== req.user.id) {
+    return res.status(401).json({ msg: 'Not authorized' });
+  }
+
+  contact = await Contact.findByIdAndUpdate(
+    req.params.id, // this is the id we find by (_id)
+    { $set: contactFields }, // setting the fields of the contact to the updated fields
+    { new: true } // if this contact doesn't exist, then just create it
+  );
+} catch (err) {}
 
 // @route       DELETE api/contacts
 // @desc        Delete contact
