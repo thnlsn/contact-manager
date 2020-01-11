@@ -63,7 +63,7 @@ router.post(
   }
 );
 
-// @route       GET api/contacts/:id
+// @route       PUT api/contacts/:id
 // @desc        Update contact
 // @access      Private
 router.put('/:id', auth, async (req, res) => {
@@ -82,7 +82,7 @@ router.put('/:id', auth, async (req, res) => {
     if (!contact) return res.status(404).json({ msg: 'Contact not found' }); // if their search doesn't exist
 
     // make sure users OWNS the contact being updated (so someone can't just change them with Postman etc.)
-    // this is done by making sure that the id in the user (owner) field of the contact (the relational field) is the same as the currently logged in user (which is found in the token)
+    // this is done by making sure that the id in the user (owner) field of the contact (the relational field) is the same as the currently logged in user ((req.user.id), which is found in the token in auth)
     // contact.user is not a string by default, but req.user.id is, thats why we use .toString()
     console.log(contact.user);
     if (contact.user.toString() !== req.user.id) {
